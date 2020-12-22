@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1 class="mb-3">{{ user.username }} ({{ posts.total }})</h1>
+<div class="content-section">
+    <fieldset>
+        <legend class="border-bottom mb-4">Account Info</legend>
+        <table class="table table-borderless table-hover">
+            <tbody>
+            <tr>
+                <td>Total Posts:</td>
+                <td>{{ posts.total }}</td>
+            </tr>
+            <tr>
+                <td>Total Comments:</td>
+                <td>{{ comments.total }}</td>
+            </tr>
+            <tr>
+                <td>Role:</td>
+                <td>{{ user.role }}</td>
+            </tr>
+            <tr>
+                <td>Account created:</td>
+                <td>{{ user.date_created.strftime("%Y-%m-%d") }}</td>
+            </tr>
+            <tr>
+                <td>Last Post:</td>
+                <td>
+                    {% if last_post %}
+                        <article class="media content-section">
+                            <img class="rounded-circle article-img"
+                                 src="{{ url_for('static', filename='profile_pics/' + user.posts[-1].author.image_file) }}"
+                                 alt="Profil pic of {{ user.posts[-1].author.username }}">
+                            <div class="media-body">
+                                <div class="article-metadata">
+                                    <a class="mr-2" href="{{ url_for('user', username=user.posts[-1].author.username) }}">{{
+                                        user.posts[-1].author.username }}</a>
+                                    <small class="text-muted">{{ user.posts[-1].date_posted.strftime("%Y-%m-%d %H:%M")
+                                        }}</small>
+                                </div>
+                                <h2><a class="article-title" href="{{ url_for('post', post_id=user.posts[-1].id) }}">{{
+                                    user.posts[-1].title }}</a></h2>
+                            </div>
+                        </article>
+                    {% else %}
+                        There aren't any posts from this user yet.
+                    {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </fieldset>
+</div>
+{% for post in posts.items %}
+<article class="media content-section">
+    <img class="rounded-circle article-img"
+         src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}"
+         alt="Profil pic of {{ post.author.username }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="{{ url_for('user', username=post.author.username) }}">{{ post.author.username }}</a>
+            <small class="text-muted">{{ post.date_posted.strftime("%Y-%m-%d %H:%M") }}</small>
+        </div>
+        <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+        <p class="article-content">{{ post.content[0:30] }}</p>
+    </div>
+</article>
+{% endfor %}
+{% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+{% if page_num %}
+{% if posts.page == page_num %}
+<a class="btn btn-info mb-4" href="{{ url_for('user', username=user.username, page=page_num) }}">{{ page_num }}</a>
+{% else %}
+<a class="btn btn-outline-info mb-4" href="{{ url_for('user', username=user.username, page=page_num) }}">{{ page_num
+    }}</a>
+{% endif %}
+
+{% else %}
+...
+{% endif %}
+{% endfor %}
+{% endblock content %}
